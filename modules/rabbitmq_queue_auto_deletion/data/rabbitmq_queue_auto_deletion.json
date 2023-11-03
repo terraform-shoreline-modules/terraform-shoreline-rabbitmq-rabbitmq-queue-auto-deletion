@@ -1,0 +1,114 @@
+{
+  "name": "rabbitmq_queue_auto_deletion",
+  "description": "This incident type refers to unexpected auto-deletion of queues in RabbitMQ. This can occur due to misconfiguration or incorrect settings, which may cause data loss or service disruption. The incident requires investigation and reconfiguration of the queue settings to prevent further occurrences.",
+  "params": [
+    {
+      "name": "PATH_TO_CONFIG_FILE",
+      "value": ""
+    },
+    {
+      "name": "NAME_OF_SOFTWARE",
+      "value": ""
+    },
+    {
+      "name": "PATH_TO_LOG_FILE",
+      "value": ""
+    },
+    {
+      "name": "NAME_OF_THE_QUEUE",
+      "value": ""
+    },
+    {
+      "name": "HOST_NAME",
+      "value": ""
+    },
+    {
+      "name": "K8S_CLUSTER_NAME",
+      "value": ""
+    },
+    {
+      "name": "NAMESPACE",
+      "value": ""
+    }
+  ],
+  "cells": [
+    {
+      "name": "cell_1",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## RabbitMQ Queue Auto-Deletion\nThis incident type refers to unexpected auto-deletion of queues in RabbitMQ. This can occur due to misconfiguration or incorrect settings, which may cause data loss or service disruption. The incident requires investigation and reconfiguration of the queue settings to prevent further occurrences."
+    },
+    {
+      "name": "cell_2",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check if rabbitmq-server is running"
+    },
+    {
+      "name": "cell_3",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `systemctl status rabbitmq-server`"
+    },
+    {
+      "name": "cell_4",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the RabbitMQ logs for any errors or warnings"
+    },
+    {
+      "name": "cell_5",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_rabbitmq_logs()"
+    },
+    {
+      "name": "cell_6",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the RabbitMQ configuration file for any misconfigurations"
+    },
+    {
+      "name": "cell_7",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `cat /etc/rabbitmq/rabbitmq.config`"
+    },
+    {
+      "name": "cell_8",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the RabbitMQ server status and verify that all queues are running"
+    },
+    {
+      "name": "cell_9",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "(host | host_name=$HOST_NAME) union (pod | k8s_cluster_name=$K8S_CLUSTER_NAME | namespace=$NAMESPACE) | `rabbitmqctl status queues`"
+    },
+    {
+      "name": "cell_10",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Check the RabbitMQ queue settings for auto-delete and expiration policies"
+    },
+    {
+      "name": "cell_11",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_rmqctl_listqueues()"
+    },
+    {
+      "name": "cell_12",
+      "type": "MARKDOWN",
+      "enabled": true,
+      "content": "## Review the queue settings and ensure that they are configured appropriately to avoid unexpected auto-deletion, such as setting the queue expiration time or disabling auto-deletion."
+    },
+    {
+      "name": "cell_13",
+      "type": "OP_LANG",
+      "enabled": true,
+      "content": "host | host_name=$HOST_NAME | invoke_set_queue_ttl_and_autodelete($NAME_OF_THE_QUEUE)"
+    }
+  ]
+}
